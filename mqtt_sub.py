@@ -9,7 +9,8 @@ def on_connect(client, userdata, flags, rc):
 	#SEND STARTFLAG TO PLOT
 	print("connection succesful")
 	client.subscribe("dwm/node/#")
-	print(type(userdata[1]))
+	#userdata[1].put(1)
+	
 
 
 def on_message(client, userdata, msg):
