@@ -2,7 +2,7 @@
 
 
 
-import add_tag
+import add_node
 import mqtt_sub
 import pos_plotter
 import threading
@@ -12,23 +12,24 @@ import queue
 
 
 if __name__ == "__main__":
-	print("Welcome to ARKARDS \nType \"add\" to add a tag to the database OR type \"plot\" to view a plot of active tags and anchors\nType \"exit\" to exit\n")
+	print("Welcome to ARKARDS \nType \"add\" to add a node to the database OR type \"plot\" to view a plot of active tags and anchors\nType \"exit\" to exit\n")
 
 	while(1):
 		mode = input("Enter mode: ")
 		if mode == "add":
 
-			mode = add_tag.start()
+			mode = add_node.start()
 		elif mode == "plot":
 
 
-			taginfo_q = queue.Queue()
+			nodeinfo_q = queue.Queue()
 			startflag_q = queue.Queue()
-			plot_t = threading.Thread(target=pos_plotter.start, args=(taginfo_q, startflag_q,))
-			sub_t = threading.Thread(target=mqtt_sub.start, args=(taginfo_q, startflag_q,))  
+			#plot_t = threading.Thread(target=pos_plotter.start, args=(nodeinfo_q, startflag_q,))
+			sub_t = threading.Thread(target=mqtt_sub.start, args=(nodeinfo_q, startflag_q,))  
 
-			plot_t.start()
+			#plot_t.start()
 			sub_t.start()
+			sub_t.join()
 
 
 		elif mode == "exit":
