@@ -10,7 +10,7 @@ def on_connect(client, userdata, flags, rc):
 	print("connection succesful")
 	client.subscribe("dwm/node/#")
 	#userdata[1].put(1)
-	
+	#penis
 
 
 def on_message(client, userdata, msg):
@@ -25,7 +25,6 @@ def start(nodeinfo_q, startflag_q):
 	with open(node_json_path) as node_f:
 		node_data = json.load(node_f)
 	userdata_vars = [nodeinfo_q, startflag_q, node_data]
-	print(type(userdata_vars[1]))
 	client = mqtt.Client(userdata = userdata_vars)
 	client.on_connect = on_connect
 	client.on_message = on_message
