@@ -6,25 +6,19 @@ import paho.mqtt.client as mqtt
 import json
 import re
 
+
 def on_connect(client, userdata, flags, rc):
 	#SEND STARTFLAG TO PLOT
 	print("connection succesful")
-	userdata[0].put(1)
+	userdata[0].put("ON")
 	client.subscribe("dwm/node/#")
-<<<<<<< HEAD
-
-=======
-	#userdata[1].put(1)
-	#hello this is vasil removing penis
->>>>>>> 0d67b08f7f7ea66904161e8e970a1faa743f0fa6
-
 
 def on_message(client, userdata, msg):
 	print(msg.topic + " "+ str(msg.payload))
 
 def on_disconnect(client, userdata, rc):
 	print("DISCONNECTED")
-	userdata[0].put(0)
+	userdata[0].put("OFF")
 
 def on_config_msg(client, userdata, msg):
 
@@ -93,7 +87,7 @@ def on_location_msg(client, userdata, msg):
 def start(nodeinfo_q):
 
 	#LOAD JSON FILE
-	nodeinfo_q.put(1)
+
 	node_json_path = "/home/kali/Desktop/ARKARDS/node_ref.json"
 	with open(node_json_path) as node_f:
 		node_data = json.load(node_f)
@@ -110,4 +104,11 @@ def start(nodeinfo_q):
 	port = 1883
 	print("connecting to client...")
 	client.connect(host, port, 60)
-	client.loop_forever()
+	client.loop_start()
+	while True:
+		if(nodeinfo_q == "OFF"):
+			client.loop_stop()
+			break
+
+	#client.loop_forever()
+
