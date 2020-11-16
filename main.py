@@ -9,7 +9,7 @@ import threading
 import queue
 
 
-
+start_flag = object()
 
 if __name__ == "__main__":
 	print("Welcome to ARKARDS \nType \"add\" to add a node to the database OR type \"plot\" to view a plot of active tags and anchors\nType \"exit\" to exit\n")
@@ -24,13 +24,14 @@ if __name__ == "__main__":
 
 			nodeinfo_q = queue.Queue()
 			startflag_q = queue.Queue()
-			#plot_t = threading.Thread(target=pos_plotter.start, args=(nodeinfo_q, startflag_q,))
-			sub_t = threading.Thread(target=mqtt_sub.start, args=(nodeinfo_q, startflag_q,))  
+			plot_t = threading.Thread(target=pos_plotter.start, args=(nodeinfo_q,))
+			sub_t = threading.Thread(target=mqtt_sub.start, args=(nodeinfo_q,))  
 
-			#plot_t.start()
+			plot_t.start()
 			sub_t.start()
+			plot_t.join()
 			sub_t.join()
-
+			
 
 		elif mode == "exit":
 			print("exit")
