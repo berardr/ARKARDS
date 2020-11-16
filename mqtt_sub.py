@@ -11,7 +11,12 @@ def on_connect(client, userdata, flags, rc):
 	print("connection succesful")
 	userdata[0].put(1)
 	client.subscribe("dwm/node/#")
+<<<<<<< HEAD
 
+=======
+	#userdata[1].put(1)
+	#hello this is vasil removing penis
+>>>>>>> 0d67b08f7f7ea66904161e8e970a1faa743f0fa6
 
 
 def on_message(client, userdata, msg):
@@ -106,6 +111,3 @@ def start(nodeinfo_q):
 	print("connecting to client...")
 	client.connect(host, port, 60)
 	client.loop_forever()
-
-
-
