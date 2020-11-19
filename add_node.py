@@ -85,7 +85,7 @@ def remove():
         if id in element:
             found = True
 
-    # if the id is found print and go back to main screen, if found pop it and update the file
+    # if the id is not found print and go back to main screen, if found pop it and update the file
     if (not found):
         print("NO SUCH ID EXISTS\n")
     else:
