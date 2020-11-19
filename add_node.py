@@ -66,7 +66,7 @@ def add():
 
 
 
-#fuction for removing
+#function for removing
 def remove():
 
     print("\n******REMOVE MENU******\n") #print heading
