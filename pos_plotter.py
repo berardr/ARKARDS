@@ -19,14 +19,15 @@ def animate(node_data):                                 #This function is where 
 
 def start(nodeinfo_q):
                                                         #PLOT_INIT Assignments
-        plot_init()
-        node_info = nodeinfo_q.get()                    #takes the oldest msg in data queue out of the queue
-        ani = ani.FuncAnimation(fig, animate, frames = node_info, interval = 250) #creates new thread which calls func animate every 250ms, passing it node_info, modify>
-        plt.show()                                      #Creates plot window (Should be called after all other plot code
-        while(node_info == "ON"):
-                data = nodeinfo_q.get()                 #begins consumer loop
-                if(data is "OFF"):
-                        break
-                else:
-                        print(data)
-
+	ax1.set_xlabel('X')                             #set axis labels
+	ax1.set_ylabel('Y')
+	ax1.set_zlabel('Z')
+	fig = plt.figure()                              #Creates figure obj, following line creates subplot to op>
+	ax1 = fig.add_subplot(111, projection='3d')     #TODO: assign fig and ax1 to vars in start fun
+	#plot_init()
+	node_info = nodeinfo_q.get()                    #takes the oldest msg in data queue out of the queue
+	ani = ani.FuncAnimation(fig, animate, frames = node_info, interval = 250) #creates new thread which calls func animate every 250ms, passing it node_info, modify>
+	plt.show()                                      #Creates plot window (Should be called after all other plot code
+	while(node_info == "ON"):
+		node_info = nodeinfo_q.get()                 #begins consumer loop
+		sleep(250);
