@@ -50,18 +50,18 @@ def start_login(client):
 	print("\n******LOGIN SCREEN******\n")
 
 	# get user name and password
-	user = input("Enter User: ")
-	password = input("Enter Password: ")
+	user_id = input("Enter User: ")
+	password_id = input("Enter Password: ")
 
 	# list of infomration  then convert to JSON
 	info = {
-            "user_id": user,
-            "password_id" : password
+            "user_id": user_id,
+            "password_id" : password_id
             }
 	infoJson = json.dumps(info)
 
 	# publish message
-	client.publish("dwm/node/ark/login", infoJson)
+	client.publish("dwm/holo/login", infoJson)
 
     #print that it is beeing added
 	print("Publishing...\n")
@@ -73,13 +73,52 @@ def start_tag(client):
 
     tag = input("Enter Tag: ")
     # list of infomration  then convert to JSON
-    info = {"tag": tag}
+    info = {"tag_id": tag,
+            "user_id" : "test",
+            "password_id" : "pass"
+            }
     infoJson = json.dumps(info)
     # publish message
-    client.publish("dwm/node/ark/tag", infoJson)
+    client.publish("dwm/holo/requesttaginfo", infoJson)
 
     #print that it is beeing added
     print("Publishing...\n")
+
+# this fucntion is for testing the DWM network message with the hololense
+def start_dwm(client):
+
+    #get tag info for sending over mqtt
+    tag = input("Enter Tag ID: ")
+    nodeType = input("Enter ANCHOR/TAG: ") # no error checking just trust
+    x = input("Enter X cord: ")
+    y = input("Enter Y cord: ")
+    z = input("Enter Z cord: ")
+
+    # list
+    info = {
+
+            "configuration" : {
+                                "nodeType" : nodeType
+
+                                },
+
+            "loc" : {
+                        "x" : x,
+                        "y" : y,
+                        "z" : z
+
+                    }
+
+            }
+
+    # turn list into json and publish to the fake dwm network
+    infoJson = json.dumps(info)
+    pub_topic = "dwm/node/"+tag+"uplink/config"
+    client.publish(pub_topic, infoJson)
+
+    # print publishing with message for debugging
+    print("Publishing: \n")
+    print(infoJson)
 
 
 # fuction for starting the connection and prompting user options
@@ -97,12 +136,12 @@ def start():
     client.connect(broker)
 
     # set the callback functions for the topics
-    client.message_callback_add("dwm/node/ark/login/results", login_results_callback)
-    client.message_callback_add("dwm/node/ark/tag/results", tag_results_callback)
+    client.message_callback_add("dwm/node/loginresults", login_results_callback)
+    client.message_callback_add("dwm/node/tag", tag_results_callback)
 
     # subscribe to the result topics for check the data sent to the database
-    client.subscribe("dwm/node/ark/login/results")
-    client.subscribe("dwm/node/ark/tag/results")
+    client.subscribe("dwm/node/tag")
+    client.subscribe("dwm/node/loginresults")
 
     # start the loop for call backs to be processed
     client.loop_start()
@@ -118,7 +157,8 @@ def start():
         print("Please Select Option:")
         print("\t1) Send Test Login")
         print("\t2) Send Test Tag")
-        print("\t3) Exit program")
+        print("\t3) Send DWM Config")
+        print("\t4) Exit program")
 
         mode = input("\nInput: ") #user input
 
@@ -128,8 +168,11 @@ def start():
         #if user pressed two then simulated the tag function
         elif mode == "2":
         	start_tag(client)
-        # if user presses three then stop loop disconnect and exit application
+        #if user pressed two then simulated the tag function
         elif mode == "3":
+            start_dwm(client)
+        # if user presses three then stop loop disconnect and exit application
+        elif mode == "4":
         	print("EXITING...")
         	client.loop_stop()
         	client.disconnect()

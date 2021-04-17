@@ -77,41 +77,7 @@ def add_tag(user_id, password_id, tag, first_name, last_name, height, weight, se
 			print(err)
 			return False
 
-# this function is designed to check against an already added tag, since there can only be one
-def check_tag(user_id, password_id, tag):
 
-		try:
-			# connect to mysql sever
-			mydb = mysql.connector.connect(
-				host = HOST_ID,
-				user = user_id,
-				password = password_id
-			)
-
-			# cursor instance
-			cursor = mydb.cursor()
-
-			# SQL query
-			query = "SELECT * FROM arkards.tags WHERE tag = %s"
-
-			# execute the command
-			cursor.execute(query, (tag,))
-			row = cursor.fetchone()
-
-			# commit close connections
-			mydb.commit()
-			mydb.close()
-
-			if not row:
-
-				return False
-			else:
-
-				return True
-
-		except mysql.connector.Error as err:
-
-			print(err)
 
 # this function is for clearing all the tags from the DB
 
@@ -392,9 +358,9 @@ def check_tag(user_id, password_id, tag_check):
 	try:
 		# connect to mysql sever
 		mydb = mysql.connector.connect(
-		host = HOST_ID,
-		user = user_id,
-		password = password_id
+			host = HOST_ID,
+			user = user_id,
+			password = password_id
 		)
 
 		# cursor instance

@@ -29,6 +29,8 @@ def login_callback(client, userdata, msg):
     msg_decode = str(msg.payload.decode("utf-8","ignore"))
     msg_list = json.loads(msg_decode)
 
+    print(msg_list)
+
     # get the user name and password then save it
     user_id = msg_list["user_id"]
     password_id = msg_list["password_id"]
@@ -47,7 +49,9 @@ def login_callback(client, userdata, msg):
     infoJson = json.dumps(info)
 
     # plublish back to to the results where the holo will listen
-    client.publish("dwm/node/ark/login/results", infoJson)
+    client.publish("dwm/node/loginresults", infoJson)
+
+    print(info)
 
 # fuction for the tag_callback
 def tag_callback(client, user, msg):
@@ -56,14 +60,16 @@ def tag_callback(client, user, msg):
     msg_list = json.loads(msg_decode)
 
     # get the tag number
-    tag = msg_list["tag"]
+    tag = msg_list["tag_id"]
+    user_id = msg_list["user_id"]
+    password_id = msg_list["password_id"]
 
     # check to moke sure it is in the DB, use login info
-    check = check_tag("root", "@rkARD$1921#", tag)
+    check = check_tag(user_id, password_id, tag)
 
     # if we find the tag, take the info and populated the message. otherwise invalid
     if check:
-        tag_info = get_tag_info("root", "@rkARD$1921#", tag) # changed the user and password to be from the tag message, hard code is for testing.
+        tag_info = get_tag_info(user_id, password_id, tag) # changed the user and password to be from the tag message, hard code is for testing.
 
         # convert the image to a basd64 string
         image_string = image_to_base64(tag_info[0][6])
@@ -94,7 +100,7 @@ def tag_callback(client, user, msg):
     tag_json = json.dumps(tag_message)
 
     # publish to mqtt broker
-    client.publish("dwm/node/ark/tag/results",tag_json)
+    client.publish("dwm/node/tag",tag_json)
 
 # function for turning an image into base64
 def image_to_base64(path):
@@ -120,16 +126,16 @@ def start_mqtt():
     #client.on_log = on_log # uncomment to see log, leave comment to suppress log
 
     # set the callback functions for the topics
-    client.message_callback_add("dwm/node/ark/login", login_callback)
-    client.message_callback_add("dwm/node/ark/tag", tag_callback)
+    client.message_callback_add("dwm/holo/login", login_callback)
+    client.message_callback_add("dwm/holo/requesttaginfo", tag_callback)
 
     # connect tothe broker
     print("Connecting to broker: " + broker)
     client.connect(broker)
 
     # subscribe to the login and tags
-    client.subscribe("dwm/node/ark/login")
-    client.subscribe("dwm/node/ark/tag")
+    client.subscribe("dwm/holo/login")
+    client.subscribe("dwm/holo/requesttaginfo")
 
     # start the loop for call backs to be processed
     client.loop_start()
