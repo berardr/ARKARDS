@@ -113,11 +113,12 @@ def start_dwm(client):
 
     # turn list into json and publish to the fake dwm network
     infoJson = json.dumps(info)
-    pub_topic = "dwm/node/"+tag+"uplink/config"
+    pub_topic = "dwm/node/"+tag+"/uplink/config"
     client.publish(pub_topic, infoJson)
 
     # print publishing with message for debugging
     print("Publishing: \n")
+    print(pub_topic)
     print(infoJson)
 
 

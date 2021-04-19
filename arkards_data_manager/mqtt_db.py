@@ -59,6 +59,8 @@ def tag_callback(client, user, msg):
     msg_decode = str(msg.payload.decode("utf-8","ignore"))
     msg_list = json.loads(msg_decode)
 
+    print(msg_list)
+
     # get the tag number
     tag = msg_list["tag_id"]
     user_id = msg_list["user_id"]
