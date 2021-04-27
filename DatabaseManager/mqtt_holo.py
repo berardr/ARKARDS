@@ -22,6 +22,11 @@ def on_connect(client, userdata, flags, rc):
     else:
         print("Bad Connection, ERROR = " + rc)
 
+# function for on connect callback
+def on_disconnect(client, userdata, rc):
+    # print disconnect message and error code
+    print("Client disconnect with RC: ", rc)
+
 # function for the on_message callback
 def login_results_callback(client, userdata, msg):
 
@@ -162,15 +167,16 @@ def start_loc(client):
 def start():
 
     #client
-    client = mqtt.Client()
+    client = mqtt.Client("ARK_HOLO", clean_session = False)
 
     # set the callback fucntions for connection and log
     client.on_connect = on_connect
+    client.on_disconnect = on_disconnect
     #client.on_log = on_log
 
     # connect to the broker
     print("Connecting to broker: " + BROKER)
-    client.connect(BROKER)
+    client.connect(BROKER, keepalive = 5)
 
     # set the callback functions for the topics
     client.message_callback_add("dwm/node/loginresults", login_results_callback)
@@ -221,4 +227,8 @@ def start():
         else:
         	print("INVALID MODE PLEASE TRY AGAIN!\n")
 
-start()
+# launch MQTT, if not write error
+try:
+    start()
+except:
+    print("Problem Starting MQTT. Please Check Connection")

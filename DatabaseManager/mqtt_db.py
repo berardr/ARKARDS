@@ -19,7 +19,7 @@ ANCHOR_LIST = []
 # function for disconnect callback
 def on_disconnect(client, userdata, rc):
     # print disconnect message
-    print("Client is disconnected")
+    print("Client is disconnected with RC: ", rc)
 
 # fucntion for on_log callback
 def on_log(client, userdata, level, buf):
@@ -155,7 +155,7 @@ def image_to_base64(path):
 # fuction for starting the connection and prompting user options
 def start_mqtt():
     #client
-    client = mqtt.Client()
+    client = mqtt.Client("ARK_DB", clean_session = False)
 
     # set the callback fucntions for connection and log
     client.on_connect = on_connect
@@ -171,14 +171,14 @@ def start_mqtt():
 
     # connect tothe broker
     print("Connecting to broker: " + BROKER)
-    client.connect(BROKER)
+    client.connect(BROKER, keepalive = 5)
 
     # subscribe to the login and tags
-    client.subscribe("dwm/holo/login")
-    client.subscribe("dwm/holo/requesttaginfo")
+    client.subscribe("dwm/holo/login", qos = 1)
+    client.subscribe("dwm/holo/requesttaginfo", qos = 1)
 
     # here we will sub to listen for config messages from the anchors
-    client.subscribe("dwm/node/#")
+    client.subscribe("dwm/node/#", qos = 1)
 
     # start the loop for call backs to be processed
     client.loop_start()
