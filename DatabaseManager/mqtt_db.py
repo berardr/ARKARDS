@@ -11,7 +11,7 @@ import base64
 from database import *
 
 #broker to connect the client to
-BROKER = "test.mosquitto.org"
+BROKER = "192.168.1.35"
 
 # list for holding the anchors, and counter to count how many we have
 ANCHOR_LIST = []
