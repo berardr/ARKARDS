@@ -10,10 +10,17 @@ import json
 import base64
 from database import *
 
+#broker to connect the client to
+BROKER = "test.mosquitto.org"
 
+# list for holding the anchors, and counter to count how many we have
+ANCHOR_LIST = []
+
+# function for disconnect callback
 def on_disconnect(client, userdata, rc):
-    if(rc != 0):
-        print("Client is disconnected")
+    # print disconnect message
+    print("Client is disconnected")
+
 # fucntion for on_log callback
 def on_log(client, userdata, level, buf):
     print("log: "+ buf)
@@ -32,8 +39,6 @@ def login_callback(client, userdata, msg):
     # message decdoing then convert from JSON to list
     msg_decode = str(msg.payload.decode("utf-8","ignore"))
     msg_list = json.loads(msg_decode)
-
-    print(msg_list)
 
     # get the user name and password then save it
     user_id = msg_list["user_id"]
@@ -54,16 +59,22 @@ def login_callback(client, userdata, msg):
 
     # plublish back to to the results where the holo will listen
     client.publish("dwm/node/loginresults", infoJson)
+    print("Login Response Published")
 
-    print(info)
+    # only send the anchors if the login is valid
+    if check:
+        for anchors in ANCHOR_LIST:
+            time.sleep(0.5) #sleep a little between messages
+            anchorJson =  json.dumps(anchors)
+            client.publish("dwm/node/anchors")
+            print("Anchor Config Published")
+
 
 # fuction for the tag_callback
-def tag_callback(client, user, msg):
+def tag_callback(client, userdata, msg):
     # message decdoing
     msg_decode = str(msg.payload.decode("utf-8","ignore"))
     msg_list = json.loads(msg_decode)
-
-    print(msg_list)
 
     # get the tag number
     tag = msg_list["tag_id"]
@@ -107,6 +118,26 @@ def tag_callback(client, user, msg):
 
     # publish to mqtt broker
     client.publish("dwm/node/tag",tag_json)
+    print("Tag Info Published")
+
+# function for getting anchor configs then prepping them to send to the holo
+def anchor_callback(client, userdata, msg):
+
+    # try and except, this is the lazy of handling if a message is not a config
+    try:
+        # message decdoing
+        msg_decode = str(msg.payload.decode("utf-8","ignore"))
+        msg_list = json.loads(msg_decode)
+
+        # get the anchor config information
+        nodeType = msg_list["configuration"]["nodeType"]
+
+        # make sure the config message is from an anchor if so add it to the list
+        if (nodeType == "ANCHOR"):
+            # add the messgae from the DWM to the list
+            ANCHOR_LIST.append(msg_list)
+    except:
+        pass
 
 # function for turning an image into base64
 def image_to_base64(path):
@@ -123,25 +154,31 @@ def image_to_base64(path):
 
 # fuction for starting the connection and prompting user options
 def start_mqtt():
-    #broker to connect to
-    broker = "192.168.1.35"
+    #client
     client = mqtt.Client()
 
     # set the callback fucntions for connection and log
     client.on_connect = on_connect
     #client.on_log = on_log # uncomment to see log, leave comment to suppress log
     client.on_disconnect = on_disconnect
+
     # set the callback functions for the topics
     client.message_callback_add("dwm/holo/login", login_callback)
     client.message_callback_add("dwm/holo/requesttaginfo", tag_callback)
 
+    # this call back is for the messages for the anchors
+    client.message_callback_add("dwm/node/#", anchor_callback)
+
     # connect tothe broker
-    print("Connecting to broker: " + broker)
-    client.connect(broker)
-    
+    print("Connecting to broker: " + BROKER)
+    client.connect(BROKER)
+
     # subscribe to the login and tags
     client.subscribe("dwm/holo/login")
     client.subscribe("dwm/holo/requesttaginfo")
+
+    # here we will sub to listen for config messages from the anchors
+    client.subscribe("dwm/node/#")
 
     # start the loop for call backs to be processed
     client.loop_start()

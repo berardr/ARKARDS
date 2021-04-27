@@ -8,6 +8,7 @@ dwm/holo/requesttaginfo
 PYTHON SUBS TO:
 dwm/holo/login
 dwm/holo/requesttaginfo
+dwm/node/#
 
 PYTHON PUBS TO:
 dwm/node/loginresults

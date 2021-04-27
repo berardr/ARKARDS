@@ -7,6 +7,8 @@ import time
 import sys
 import json
 
+#broker to connect the client to
+BROKER = "test.mosquitto.org"
 
 # fucntion for on_log callback
 def on_log(clinet, userdata, level, buf):
@@ -110,7 +112,7 @@ def start_dwm(client):
                                                              }
                                              }
 
-                                 }                               
+                                 }
 
             }
 
@@ -131,8 +133,8 @@ def start_loc(client):
     tag = input("Enter Tag ID: ")
     x = input("Enter X cord: ")
     y = input("Enter Y cord: ")
-    z = input("Enter Z cord: ")  
-    
+    z = input("Enter Z cord: ")
+
     # list
     info = {
 
@@ -143,7 +145,7 @@ def start_loc(client):
 
                         }
 
-            } 
+            }
 
     # turn list into json and publish to the fake dwm network
     infoJson = json.dumps(info)
@@ -158,8 +160,8 @@ def start_loc(client):
 
 # fuction for starting the connection and prompting user options
 def start():
-    #broker to connect to
-    broker = "test.mosquitto.org"
+
+    #client
     client = mqtt.Client()
 
     # set the callback fucntions for connection and log
@@ -167,8 +169,8 @@ def start():
     #client.on_log = on_log
 
     # connect to the broker
-    print("Connecting to broker: " + broker)
-    client.connect(broker)
+    print("Connecting to broker: " + BROKER)
+    client.connect(BROKER)
 
     # set the callback functions for the topics
     client.message_callback_add("dwm/node/loginresults", login_results_callback)
