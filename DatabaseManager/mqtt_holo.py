@@ -98,16 +98,19 @@ def start_dwm(client):
     info = {
 
             "configuration" : {
-                                "nodeType" : nodeType
+                                "nodeType" : nodeType,
 
-                                },
+                                 "anchor": {
 
-            "loc" : {
-                        "x" : x,
-                        "y" : y,
-                        "z" : z
+                                                "position" : {
+                                                                "x" : x,
+                                                                "y" : y,
+                                                                "z" : z
 
-                    }
+                                                             }
+                                             }
+
+                                 }                               
 
             }
 
@@ -121,12 +124,43 @@ def start_dwm(client):
     print(pub_topic)
     print(infoJson)
 
+# this function is for testing a tag location message with the hololense
+def start_loc(client):
+
+    #get the tag info
+    tag = input("Enter Tag ID: ")
+    x = input("Enter X cord: ")
+    y = input("Enter Y cord: ")
+    z = input("Enter Z cord: ")  
+    
+    # list
+    info = {
+
+            "position": {
+                            "x" : x,
+                            "y" : y,
+                            "z" : z
+
+                        }
+
+            } 
+
+    # turn list into json and publish to the fake dwm network
+    infoJson = json.dumps(info)
+    pub_topic = "dwm/node/"+tag+"/uplink/location"
+    client.publish(pub_topic, infoJson)
+
+    # print publishing with message for debugging
+    print("Publishing: \n")
+    print(pub_topic)
+    print(infoJson)
+
 
 # fuction for starting the connection and prompting user options
 def start():
     #broker to connect to
     broker = "test.mosquitto.org"
-    client = mqtt.Client("arkards_holo")
+    client = mqtt.Client()
 
     # set the callback fucntions for connection and log
     client.on_connect = on_connect
@@ -159,7 +193,8 @@ def start():
         print("\t1) Send Test Login")
         print("\t2) Send Test Tag")
         print("\t3) Send DWM Config")
-        print("\t4) Exit program")
+        print("\t4) Send Tag Location Msg")
+        print("\t5) Exit program")
 
         mode = input("\nInput: ") #user input
 
@@ -172,8 +207,11 @@ def start():
         #if user pressed two then simulated the tag function
         elif mode == "3":
             start_dwm(client)
-        # if user presses three then stop loop disconnect and exit application
+        #if user pressed two then simulated the tag function
         elif mode == "4":
+            start_loc(client)
+        # if user presses three then stop loop disconnect and exit application
+        elif mode == "5":
         	print("EXITING...")
         	client.loop_stop()
         	client.disconnect()

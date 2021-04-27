@@ -16,6 +16,9 @@ FONT_LARGE = ("Calibri", 24)
 FONT_MEDIUM = ("Calibri", 16)
 FONT_SMALL = ("Calibri", 12)
 
+# size for window, should be same as picture size from func_image file
+MAX_SIZE = 512
+
 # start the view screen
 def start_view(root, user, password):
 
@@ -67,8 +70,8 @@ def start_view(root, user, password):
 			child_root.iconbitmap("icon.ico")
 
 			# set demintions for the window, also get the screen width and height for centering later
-			child_width = 1024
-			child_height = 1024
+			child_width = MAX_SIZE
+			child_height = MAX_SIZE
 			screen_width = child_root.winfo_screenwidth()
 			screen_height = child_root.winfo_screenheight()
 

@@ -120,7 +120,7 @@ def image_to_base64(path):
 # fuction for starting the connection and prompting user options
 def start_mqtt():
     #broker to connect to
-    broker = "192.168.1.35"
+    broker = "test.mosquitto.org"
     client = mqtt.Client()
 
     # set the callback fucntions for connection and log
