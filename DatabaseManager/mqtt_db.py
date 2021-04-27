@@ -10,8 +10,12 @@ import json
 import base64
 from database import *
 
+
+def on_disconnect(client, userdata, rc):
+    if(rc != 0):
+        print("Client is disconnected")
 # fucntion for on_log callback
-def on_log(clinet, userdata, level, buf):
+def on_log(client, userdata, level, buf):
     print("log: "+ buf)
 
 # function for on connect callback
@@ -120,13 +124,13 @@ def image_to_base64(path):
 # fuction for starting the connection and prompting user options
 def start_mqtt():
     #broker to connect to
-    broker = "test.mosquitto.org"
+    broker = "192.168.1.35"
     client = mqtt.Client()
 
     # set the callback fucntions for connection and log
     client.on_connect = on_connect
     #client.on_log = on_log # uncomment to see log, leave comment to suppress log
-
+    client.on_disconnect = on_disconnect
     # set the callback functions for the topics
     client.message_callback_add("dwm/holo/login", login_callback)
     client.message_callback_add("dwm/holo/requesttaginfo", tag_callback)
@@ -134,7 +138,7 @@ def start_mqtt():
     # connect tothe broker
     print("Connecting to broker: " + broker)
     client.connect(broker)
-
+    
     # subscribe to the login and tags
     client.subscribe("dwm/holo/login")
     client.subscribe("dwm/holo/requesttaginfo")
