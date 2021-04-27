@@ -1,9 +1,10 @@
 HOLO SUBS TO:
-dwm/node/#
+dwm/#
 
 HOLO PUBS TO:
 dwm/holo/login
 dwm/holo/requesttaginfo
+dwm/holo/anchors
 
 PYTHON SUBS TO:
 dwm/holo/login
