@@ -9,14 +9,14 @@
 import os
 from PIL import Image, ImageTk
 
-MAX_SIZE = 256
+MAX_SIZE = 512
 
 def image_open(path, tag):
 
 	# open the image
 	pic = Image.open(path)
 
-	# get size of the image and make with the largest 256 width or height
+	# get size of the image and make with the largest MAX_SIZE width or height
 	size = pic.size
 	ratio = min(MAX_SIZE/size[0], MAX_SIZE/size[1])
 	new_width = int(size[0]*ratio)
