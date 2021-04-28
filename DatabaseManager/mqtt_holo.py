@@ -105,6 +105,8 @@ def start_dwm(client):
     info = {
 
             "configuration" : {
+                                "label" : tag,
+
                                 "nodeType" : nodeType,
 
                                  "anchor": {
@@ -167,7 +169,7 @@ def start_loc(client):
 def start():
 
     #client
-    client = mqtt.Client("ARK_HOLO", clean_session = False)
+    client = mqtt.Client()
 
     # set the callback fucntions for connection and log
     client.on_connect = on_connect

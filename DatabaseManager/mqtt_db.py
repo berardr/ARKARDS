@@ -1,6 +1,6 @@
 #*************************************************************************************
 # The purpose of this file is recieve requests from the hololense and then gather
-# information from the db to send back to the hololense
+# information from the db to send back to the hololens
 #*************************************************************************************
 
 import paho.mqtt.client as mqtt
@@ -11,7 +11,7 @@ import base64
 from database import *
 
 #broker to connect the client to
-BROKER = "192.168.1.35"
+BROKER = "test.mosquitto.org"
 
 # list for holding the anchors, and counter to count how many we have
 ANCHOR_LIST = []
@@ -20,6 +20,8 @@ ANCHOR_LIST = []
 def on_disconnect(client, userdata, rc):
     # print disconnect message
     print("Client is disconnected with RC: ", rc)
+    # if disconnected then clear the list since it probably means we will get new anchors on the turn on
+    ANCHOR_LIST.clear()
 
 # fucntion for on_log callback
 def on_log(client, userdata, level, buf):
@@ -61,14 +63,14 @@ def login_callback(client, userdata, msg):
     client.publish("dwm/node/loginresults", infoJson)
     print("Login Response Published")
 
-    # only send the anchors if the login is valid
-    if check:
-        for anchors in ANCHOR_LIST:
-            time.sleep(0.5) #sleep a little between messages
-            anchorJson =  json.dumps(anchors)
-            client.publish("dwm/node/anchors", anchorJson)
-            print("Anchor Config Published")
 
+# function for sending the anchors
+def send_anchors(client, userdata, msg):
+    for anchor in ANCHOR_LIST:
+        time.sleep(1) #sleep a little between messages
+        anchorJson =  json.dumps(anchor)
+        client.publish("dwm/node/anchors", anchorJson)
+        print("Anchor Config Published")
 
 # fuction for the tag_callback
 def tag_callback(client, userdata, msg):
@@ -166,6 +168,7 @@ def start_mqtt():
     # set the callback functions for the topics
     client.message_callback_add("dwm/holo/login", login_callback)
     client.message_callback_add("dwm/holo/requesttaginfo", tag_callback)
+    client.message_callback_add("dwm/holo/requestanchors", send_anchors)
 
     # this call back is for the messages for the anchors
     client.message_callback_add("dwm/node/+/uplink/config", anchor_callback)
@@ -174,9 +177,10 @@ def start_mqtt():
     print("Connecting to broker: " + BROKER)
     client.connect(BROKER, keepalive = 5)
 
-    # subscribe to the login and tags
-    client.subscribe("dwm/holo/login", qos = 1)
-    client.subscribe("dwm/holo/requesttaginfo", qos = 1)
+    # subscribe to the login, tags, and anchor requests
+    client.subscribe("dwm/holo/login")
+    client.subscribe("dwm/holo/requesttaginfo")
+    client.subscribe("dwm/holo/requestanchors")
 
     # here we will sub to listen for config messages from the anchors
     client.subscribe("dwm/node/+/uplink/config", qos = 1)
