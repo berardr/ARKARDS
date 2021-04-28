@@ -66,7 +66,7 @@ def login_callback(client, userdata, msg):
         for anchors in ANCHOR_LIST:
             time.sleep(0.5) #sleep a little between messages
             anchorJson =  json.dumps(anchors)
-            client.publish("dwm/node/anchors")
+            client.publish("dwm/node/anchors", anchorJson)
             print("Anchor Config Published")
 
 
@@ -136,6 +136,7 @@ def anchor_callback(client, userdata, msg):
         if (nodeType == "ANCHOR"):
             # add the messgae from the DWM to the list
             ANCHOR_LIST.append(msg_list)
+            print("Anchor Message Recieved")
     except:
         pass
 
@@ -167,7 +168,7 @@ def start_mqtt():
     client.message_callback_add("dwm/holo/requesttaginfo", tag_callback)
 
     # this call back is for the messages for the anchors
-    client.message_callback_add("dwm/node/#", anchor_callback)
+    client.message_callback_add("dwm/node/+/uplink/config", anchor_callback)
 
     # connect tothe broker
     print("Connecting to broker: " + BROKER)
@@ -178,9 +179,10 @@ def start_mqtt():
     client.subscribe("dwm/holo/requesttaginfo", qos = 1)
 
     # here we will sub to listen for config messages from the anchors
-    client.subscribe("dwm/node/#", qos = 1)
+    client.subscribe("dwm/node/+/uplink/config", qos = 1)
 
     # start the loop for call backs to be processed
+    #client.loop_forever()
     client.loop_start()
 
     # wait 1 second
@@ -190,3 +192,5 @@ def start_mqtt():
     print("************************************************")
     print("*       LISTENING FOR LOGIN AND TAGS          *")
     print("************************************************")
+
+#start_mqtt()
