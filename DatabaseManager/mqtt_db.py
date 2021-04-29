@@ -65,12 +65,19 @@ def login_callback(client, userdata, msg):
 
 
 # function for sending the anchors
-def send_anchors(client, userdata, msg):
+def send_anchors(client):
+
+    # loop through the anchor list and send over the anchors
     for anchor in ANCHOR_LIST:
-        time.sleep(1) #sleep a little between messages
+        id = anchor["configuration"]["label"]
+        pub_topic = "dwm/node/anchors/" + id
         anchorJson =  json.dumps(anchor)
-        client.publish("dwm/node/anchors", anchorJson)
-        print("Anchor Config Published")
+        client.publish(pub_topic, anchorJson)
+        print("Anchor Sent")
+
+# function for the anchor request call back
+def request_anchors_callback(client, userdata, msg):
+    send_anchors(client)
 
 # fuction for the tag_callback
 def tag_callback(client, userdata, msg):
@@ -137,8 +144,11 @@ def anchor_callback(client, userdata, msg):
         # make sure the config message is from an anchor if so add it to the list
         if (nodeType == "ANCHOR"):
             # add the messgae from the DWM to the list
-            ANCHOR_LIST.append(msg_list)
-            print("Anchor Message Recieved")
+            if msg_list not in ANCHOR_LIST:
+                ANCHOR_LIST.append(msg_list)
+                print("Anchor Message Recieved")
+            else:
+                print("Anchor Already Added")
     except:
         pass
 
@@ -158,7 +168,7 @@ def image_to_base64(path):
 # fuction for starting the connection and prompting user options
 def start_mqtt():
     #client
-    client = mqtt.Client("ARK_DB", clean_session = False)
+    client = mqtt.Client()
 
     # set the callback fucntions for connection and log
     client.on_connect = on_connect
@@ -168,7 +178,7 @@ def start_mqtt():
     # set the callback functions for the topics
     client.message_callback_add("dwm/holo/login", login_callback)
     client.message_callback_add("dwm/holo/requesttaginfo", tag_callback)
-    client.message_callback_add("dwm/holo/requestanchors", send_anchors)
+    client.message_callback_add("dwm/holo/requestanchors", request_anchors_callback)
 
     # this call back is for the messages for the anchors
     client.message_callback_add("dwm/node/+/uplink/config", anchor_callback)
@@ -183,7 +193,7 @@ def start_mqtt():
     client.subscribe("dwm/holo/requestanchors")
 
     # here we will sub to listen for config messages from the anchors
-    client.subscribe("dwm/node/+/uplink/config", qos = 1)
+    client.subscribe("dwm/node/+/uplink/config")
 
     # start the loop for call backs to be processed
     #client.loop_forever()
