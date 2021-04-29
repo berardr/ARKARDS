@@ -1,10 +1,10 @@
 HOLO SUBS TO:
-dwm/#
+dwm/node/#
 
 HOLO PUBS TO:
 dwm/holo/login
 dwm/holo/requesttaginfo
-dwm/holo/anchors
+dwm/holo/requestanchors
 
 PYTHON SUBS TO:
 dwm/holo/login
@@ -14,6 +14,7 @@ dwm/node/#
 PYTHON PUBS TO:
 dwm/node/loginresults
 dwm/node/tag
+dwm/node/anchors
 
 DWM SYSTEM PUBS TO:
 dwm/node/[TAGID]/uplink/location

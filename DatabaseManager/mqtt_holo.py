@@ -51,6 +51,13 @@ def tag_results_callback(client, userdata, msg):
 
     print(msg_list)
 
+def anchors_callback(client, userdata, msg):
+    # message decdoing then convert from JSON to list
+    msg_decode = str(msg.payload.decode("utf-8","ignore"))
+    msg_list = json.loads(msg_decode)
+
+    print(msg_list)
+
 # function for pressing 1) on the menue
 def start_login(client):
 	# print the heading
@@ -105,6 +112,8 @@ def start_dwm(client):
     info = {
 
             "configuration" : {
+                                "label" : tag,
+
                                 "nodeType" : nodeType,
 
                                  "anchor": {
@@ -167,7 +176,7 @@ def start_loc(client):
 def start():
 
     #client
-    client = mqtt.Client("ARK_HOLO", clean_session = False)
+    client = mqtt.Client()
 
     # set the callback fucntions for connection and log
     client.on_connect = on_connect
@@ -181,10 +190,12 @@ def start():
     # set the callback functions for the topics
     client.message_callback_add("dwm/node/loginresults", login_results_callback)
     client.message_callback_add("dwm/node/tag", tag_results_callback)
+    client.message_callback_add("dwm/node/anchors/#", anchors_callback)
 
     # subscribe to the result topics for check the data sent to the database
     client.subscribe("dwm/node/tag")
     client.subscribe("dwm/node/loginresults")
+    client.subscribe("dwm/node/anchors/#")
 
     # start the loop for call backs to be processed
     client.loop_start()
