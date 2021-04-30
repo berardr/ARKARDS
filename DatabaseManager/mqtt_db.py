@@ -13,7 +13,7 @@ from database import *
 #broker to connect the client to
 BROKER = "test.mosquitto.org"
 
-# list for holding the anchors, and counter to count how many we have
+# lists for holding the anchors and tags
 ANCHOR_LIST = []
 
 # function for disconnect callback
@@ -75,6 +75,17 @@ def send_anchors(client):
         client.publish(pub_topic, anchorJson)
         print("Anchor Sent")
 
+# function for sending the tags
+def send_tag(client):
+
+    # loop through the tag list and send over the tags
+    for tag in TAG_LIST:
+        id = tag["configuration"]["label"]
+        pub_topic = "dwm/node/anchors/" + id
+        tagJson =  json.dumps(anchor)
+        client.publish(pub_topic, tagJson)
+        print("Tag Sent")
+
 # function for the anchor request call back
 def request_anchors_callback(client, userdata, msg):
     send_anchors(client)
@@ -130,7 +141,7 @@ def tag_callback(client, userdata, msg):
     print("Tag Info Published")
 
 # function for getting anchor configs then prepping them to send to the holo
-def anchor_callback(client, userdata, msg):
+def config_callback(client, userdata, msg):
 
     # try and except, this is the lazy of handling if a message is not a config
     try:
@@ -140,15 +151,42 @@ def anchor_callback(client, userdata, msg):
 
         # get the anchor config information
         nodeType = msg_list["configuration"]["nodeType"]
+        # get the id and position
+        id = msg_list["configuration"]["label"]
+        postion = msg_list["configuration"]["anchor"]["position"]
 
         # make sure the config message is from an anchor if so add it to the list
         if (nodeType == "ANCHOR"):
-            # add the messgae from the DWM to the list
-            if msg_list not in ANCHOR_LIST:
+
+            # print recieve message
+            print("Anchor Config Message Recieved")
+
+            not_found_anchor = True # bool for checking the loop
+
+            # if the list is empty add the message
+            if not ANCHOR_LIST:
                 ANCHOR_LIST.append(msg_list)
-                print("Anchor Message Recieved")
+                print("Anchor Added To List")
+
+                # loop through the current list and makes sure the anchor is not added already
+                # if it is not added then add it otherwise if its there and the positon is different update it
+                # finally added otherwise
             else:
-                print("Anchor Already Added")
+                for anchor in ANCHOR_LIST:
+                    if anchor["configuration"]["label"] == id: # here we check to see if the anchor is in the list
+                        if anchor["configuration"]["anchor"]["position"] != postion: # check if the position has chenged
+                            anchor["configuration"]["anchor"]["position"] = postion # update postion if it has
+                            print("Anchor Updated") # print message
+                            not_found_anchor = False
+                            break # break from the loop we are done
+                        else:
+                            print("Anchor Already Added") # anchor is in the list with no changes so dont duplicate the list
+                            not_found_anchor = False
+                            break # break we are done
+
+                if not_found_anchor:
+                    ANCHOR_LIST.append(msg_list) # we loop through and didnt find it so add it
+                    print("Anchor Added To List") # print message
     except:
         pass
 
@@ -180,31 +218,27 @@ def start_mqtt():
     client.message_callback_add("dwm/holo/requesttaginfo", tag_callback)
     client.message_callback_add("dwm/holo/requestanchors", request_anchors_callback)
 
-    # this call back is for the messages for the anchors
-    client.message_callback_add("dwm/node/+/uplink/config", anchor_callback)
+    # this call back is for the messages for the config messages
+    client.message_callback_add("dwm/node/+/uplink/config", config_callback)
 
     # connect tothe broker
     print("Connecting to broker: " + BROKER)
     client.connect(BROKER, keepalive = 5)
 
     # subscribe to the login, tags, and anchor requests
-    client.subscribe("dwm/holo/login")
-    client.subscribe("dwm/holo/requesttaginfo")
-    client.subscribe("dwm/holo/requestanchors")
+    client.subscribe("dwm/holo/login", qos = 1)
+    client.subscribe("dwm/holo/requesttaginfo", qos = 1)
+    client.subscribe("dwm/holo/requestanchors", qos = 1)
 
     # here we will sub to listen for config messages from the anchors
-    client.subscribe("dwm/node/+/uplink/config")
+    client.subscribe("dwm/node/+/uplink/config", qos = 1)
 
     # start the loop for call backs to be processed
-    #client.loop_forever()
-    client.loop_start()
+    client.loop_forever()
 
-    # wait 1 second
-    time.sleep(1)
+# try and start the stript, error if not
+try:
+    start_mqtt()
 
-    # print the heading and the options
-    print("************************************************")
-    print("*       LISTENING FOR LOGIN AND TAGS          *")
-    print("************************************************")
-
-#start_mqtt()
+except e:
+    print(e)

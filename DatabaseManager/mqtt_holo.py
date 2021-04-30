@@ -133,7 +133,7 @@ def start_dwm(client):
     # turn list into json and publish to the fake dwm network
     infoJson = json.dumps(info)
     pub_topic = "dwm/node/"+tag+"/uplink/config"
-    client.publish(pub_topic, infoJson)
+    client.publish(pub_topic, infoJson, qos = 1, retain = True)
 
     # print publishing with message for debugging
     print("Publishing: \n")
@@ -223,13 +223,13 @@ def start():
         #if user pressed two then simulated the tag function
         elif mode == "2":
         	start_tag(client)
-        #if user pressed two then simulated the tag function
+        #if user pressed three then simulated the anchor config
         elif mode == "3":
             start_dwm(client)
-        #if user pressed two then simulated the tag function
+        #if user pressed four then simulated the tag location
         elif mode == "4":
             start_loc(client)
-        # if user presses three then stop loop disconnect and exit application
+        # if user presses five then stop loop disconnect and exit application
         elif mode == "5":
         	print("EXITING...")
         	client.loop_stop()

@@ -9,7 +9,7 @@ dwm/holo/requestanchors
 PYTHON SUBS TO:
 dwm/holo/login
 dwm/holo/requesttaginfo
-dwm/node/#
+dwm/node/+/uplink/config
 
 PYTHON PUBS TO:
 dwm/node/loginresults
