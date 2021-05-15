@@ -11,7 +11,7 @@ import base64
 from database import *
 
 #broker to connect the client to
-BROKER = "test.mosquitto.org"
+BROKER = "192.168.1.35"
 
 # lists for holding the anchors and tags
 ANCHOR_LIST = []
@@ -72,8 +72,9 @@ def send_anchors(client):
         id = anchor["configuration"]["label"]
         pub_topic = "dwm/node/anchors/" + id
         anchorJson =  json.dumps(anchor)
-        client.publish(pub_topic, anchorJson)
+        client.publish(pub_topic, anchorJson, retain = True)
         print("Anchor Sent")
+        
 
 # function for sending the tags
 def send_tag(client):
@@ -226,12 +227,12 @@ def start_mqtt():
     client.connect(BROKER, keepalive = 5)
 
     # subscribe to the login, tags, and anchor requests
-    client.subscribe("dwm/holo/login", qos = 1)
-    client.subscribe("dwm/holo/requesttaginfo", qos = 1)
-    client.subscribe("dwm/holo/requestanchors", qos = 1)
+    client.subscribe("dwm/holo/login")
+    client.subscribe("dwm/holo/requesttaginfo")
+    #client.subscribe("dwm/holo/requestanchors")
 
     # here we will sub to listen for config messages from the anchors
-    client.subscribe("dwm/node/+/uplink/config", qos = 1)
+    #client.subscribe("dwm/node/+/uplink/config", qos = 1)
 
     # start the loop for call backs to be processed
     client.loop_forever()
