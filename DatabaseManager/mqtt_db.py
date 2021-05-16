@@ -74,7 +74,7 @@ def send_anchors(client):
         anchorJson =  json.dumps(anchor)
         client.publish(pub_topic, anchorJson, retain = True)
         print("Anchor Sent")
-        
+
 
 # function for sending the tags
 def send_tag(client):
@@ -232,7 +232,7 @@ def start_mqtt():
     #client.subscribe("dwm/holo/requestanchors")
 
     # here we will sub to listen for config messages from the anchors
-    #client.subscribe("dwm/node/+/uplink/config", qos = 1)
+    client.subscribe("dwm/node/+/uplink/config", qos = 1)
 
     # start the loop for call backs to be processed
     client.loop_forever()
